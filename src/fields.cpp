@@ -1,4 +1,4 @@
-/* Copyright (C) 2005-2022 Massachusetts Institute of Technology
+/* Copyright (C) 2005-2023 Massachusetts Institute of Technology
 %
 %  This program is free software; you can redistribute it and/or modify
 %  it under the terms of the GNU General Public License as published by
@@ -661,6 +661,13 @@ void fields_chunk::use_real_fields() {
         }
       }
     }
+}
+
+bool fields::has_nonlinearities(bool parallel) const {
+  bool nonlinear = false;
+  for (int i = 0; i < num_chunks; i++)
+    if (chunks[i]->is_mine()) nonlinear = nonlinear || chunks[i]->s->has_nonlinearities();
+  return parallel ? or_to_all(nonlinear) : nonlinear;
 }
 
 int fields::phase_in_material(const structure *snew, double time) {
